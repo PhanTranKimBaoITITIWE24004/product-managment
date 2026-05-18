@@ -98,13 +98,45 @@
             gap: 10px;
         }
         
-        .search-form input {
+        .search-form input,
+        .search-form select {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             flex: 1;
         }
         
+        .advanced-search {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9ff;
+        }
+
+        .advanced-search h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination .btn {
+            padding: 8px 16px;
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -155,24 +187,67 @@
         <!-- Actions -->
         <div class="actions">
             <a th:href="@{/products/new}" class="btn btn-primary">➕ Add New Product</a>
-            
             <form th:action="@{/products/search}" method="get" class="search-form">
-                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search products..." />
+                    <option value="">All Categories</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                            th:selected="${cat == selectedCategory}"></option>
+                </select>
                 <button type="submit" class="btn btn-primary">🔍 Search</button>
             </form>
         </div>
-        
+
+        <div class="advanced-search">
+            <h2>Advanced Search</h2>
+            <form th:action="@{/products/advanced-search}" method="get" class="search-form">
+                <input type="text" name="name" th:value="${name}" placeholder="Name contains" />
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                            th:selected="${cat == selectedCategory}"></option>
+                </select>
+                <input type="number" name="minPrice" th:value="${minPrice}" step="0.01" min="0" placeholder="Min price" />
+                <input type="number" name="maxPrice" th:value="${maxPrice}" step="0.01" min="0" placeholder="Max price" />
+                <button type="submit" class="btn btn-primary">🔎 Filter</button>
+                <a th:href="@{/products}" class="btn btn-secondary">Reset</a>
+            </form>
+        </div>
+
         <!-- Products Table -->
         <div th:if="${products != null and !products.isEmpty()}">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Category</th>
+                        <th>
+                            <a th:href="@{/products(sortBy='productCode',sortDir=${sortBy=='productCode'?'desc':'asc'},category=${selectedCategory})}">
+                                Code
+                                <span th:if="${sortBy=='productCode'}" th:text="${sortDir=='asc'?'↑':'↓'}"></span>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/products(sortBy='name',sortDir=${sortBy=='name'?'desc':'asc'},category=${selectedCategory})}">
+                                Name
+                                <span th:if="${sortBy=='name'}" th:text="${sortDir=='asc'?'↑':'↓'}"></span>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/products(sortBy='price',sortDir=${sortBy=='price'?'desc':'asc'},category=${selectedCategory})}">
+                                Price
+                                <span th:if="${sortBy=='price'}" th:text="${sortDir=='asc'?'↑':'↓'}"></span>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/products(sortBy='quantity',sortDir=${sortBy=='quantity'?'desc':'asc'},category=${selectedCategory})}">
+                                Quantity
+                                <span th:if="${sortBy=='quantity'}" th:text="${sortDir=='asc'?'↑':'↓'}"></span>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/products(sortBy='category',sortDir=${sortBy=='category'?'desc':'asc'},category=${selectedCategory})}">
+                                Category
+                                <span th:if="${sortBy=='category'}" th:text="${sortDir=='asc'?'↑':'↓'}"></span>
+                            </a>
+                        </th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -197,6 +272,13 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="pagination" th:if="${totalPages != null && totalPages > 1}">
+                <a th:href="@{/products(page=${currentPage-1},sortBy=${sortBy},sortDir=${sortDir},category=${selectedCategory})}"
+                   class="btn btn-primary" th:classappend="${currentPage == 0} ? ' disabled' : ''">Previous</a>
+                <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
+                <a th:href="@{/products(page=${currentPage+1},sortBy=${sortBy},sortDir=${sortDir},category=${selectedCategory})}"
+                   class="btn btn-primary" th:classappend="${currentPage + 1 >= totalPages} ? ' disabled' : ''">Next</a>
+            </div>
         </div>
         
         <!-- Empty State -->

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fb; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { color: #333; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .card h2 { font-size: 18px; margin-bottom: 10px; color: #555; }
+        .card p { font-size: 32px; color: #222; }
+        .section { margin-bottom: 30px; }
+        .section h2 { margin-bottom: 15px; color: #333; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #eaeaea; }
+        th { background: #667eea; color: white; }
+        tbody tr:hover { background: #f5f8ff; }
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 999px; background: #667eea; color: white; font-size: 12px; }
+        .empty { color: #666; padding: 20px; }
+        .back-link { display: inline-block; margin-top: 10px; color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 Product Dashboard</h1>
+                <p>Overview of inventory, categories, and low stock alerts.</p>
+            </div>
+            <a th:href="@{/products}" class="back-link">← Back to Product List</a>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h2>Total Products</h2>
+                <p th:text="${totalProducts}">0</p>
+            </div>
+            <div class="card">
+                <h2>Total Inventory Value</h2>
+                <p th:text="${#numbers.formatDecimal(totalValue, 1, 2)}">0.00</p>
+            </div>
+            <div class="card">
+                <h2>Average Price</h2>
+                <p th:text="${#numbers.formatDecimal(averagePrice, 1, 2)}">0.00</p>
+            </div>
+            <div class="card">
+                <h2>Low Stock Products</h2>
+                <p th:text="${lowStockProducts.size()}">0</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Products by Category</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry : ${productsByCategory.entrySet()}">
+                        <td th:text="${entry.key}">Category</td>
+                        <td>
+                            <span class="badge" th:text="${entry.value}">0</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Low Stock Alerts (Quantity &lt; 10)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${lowStockProducts}">
+                        <td th:text="${product.productCode}">P001</td>
+                        <td th:text="${product.name}">Product Name</td>
+                        <td th:text="${product.quantity}">0</td>
+                        <td th:text="${product.category}">Category</td>
+                    </tr>
+                    <tr th:if="${lowStockProducts == null or lowStockProducts.isEmpty()}">
+                        <td class="empty" colspan="4">No low stock products found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Recent Products</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${recentProducts}">
+                        <td th:text="${product.productCode}">P001</td>
+                        <td th:text="${product.name}">Product Name</td>
+                        <td th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</td>
+                        <td th:text="${product.quantity}">0</td>
+                    </tr>
+                    <tr th:if="${recentProducts == null or recentProducts.isEmpty()}">
+                        <td class="empty" colspan="4">No recent products available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
