@@ -187,13 +187,6 @@
         <!-- Actions -->
         <div class="actions">
             <a th:href="@{/products/new}" class="btn btn-primary">➕ Add New Product</a>
-            <form th:action="@{/products/search}" method="get" class="search-form">
-                    <option value="">All Categories</option>
-                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
-                            th:selected="${cat == selectedCategory}"></option>
-                </select>
-                <button type="submit" class="btn btn-primary">🔍 Search</button>
-            </form>
         </div>
 
         <div class="advanced-search">
